@@ -61,7 +61,7 @@ int             ilint;
 Item           *qlint;
 #endif
 
-extern int yyparse();
+extern int nrn_nmodl_yyparse();
 
 #if NMODL && VECTORIZE
 extern int vectorize;
@@ -129,7 +129,7 @@ int main(argc, argv)
 		modprefix, modprefix);
 #endif
 #endif
-	IGNORE(yyparse());
+	IGNORE(nrn_nmodl_yyparse());
 	/*
 	 * At this point all blocks are fully processed except the kinetic
 	 * block and the solve statements. Even in these cases the 

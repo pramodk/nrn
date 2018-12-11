@@ -5,6 +5,9 @@
 #include "modl.h"
 #include <stdlib.h>
 
+#define yyparse nrn_nmodl_yyparse
+#define yylex   nrn_nmodl_yylex
+
 #if defined(__STDC__)
 #define sdebug(arg1,arg2) {}
 #define qdebug(arg1,arg2) {}

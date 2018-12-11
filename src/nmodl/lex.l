@@ -26,6 +26,8 @@ extern int Getc();
 extern int unGetc();
 extern int unput();
 
+#define yylex nrn_nmodl_yylex
+
 #define debug(arg1,arg2) /*printf("lex:arg1|%s|\n", arg2);*/
 %}
 D	[0-9]
