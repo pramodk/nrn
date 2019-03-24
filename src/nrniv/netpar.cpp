@@ -13,8 +13,11 @@
 #endif
 #include <bbs.h>
 
+#include <caliper/cali.h>
+
 #undef MD
 #define MD 2147483648.
+
 
 class PreSyn;
 
@@ -1234,6 +1237,8 @@ void BBS::netpar_solve(double tstop) {
 	}
 	double wt;
 
+    CALI_MARK_BEGIN("simulation");
+
 	nrnmpi_barrier(); // make sure all integrations start about the same
 	nrn_timeout(timeout_); //time to avoid spurious timeouts while waiting
 				// at the next MPI_collective.
@@ -1273,6 +1278,7 @@ void BBS::netpar_solve(double tstop) {
 	ncs2nrn_integrate(tstop);
 #endif
 	tstopunset;
+    CALI_MARK_END("simulation");
 }
 
 static double set_mindelay(double maxdelay) {

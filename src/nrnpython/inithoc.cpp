@@ -10,6 +10,8 @@
 #include <Python.h>
 #include <stdlib.h>
 
+#include <caliper/cali.h>
+
 extern "C" {
 
 // int nrn_global_argc;
@@ -199,16 +201,18 @@ void inithoc() {
   }
 #endif // NRNMPI
   nrn_main_launch = 2;
+  CALI_MARK_BEGIN("main");
   ivocmain(argc, argv, env);
 //	nrnpy_augment_path();
 #if NRNPYTHON_DYNAMICLOAD
   nrnpy_site_problem = 0;
 #endif // NRNPYTHON_DYNAMICLOAD
 #if PY_MAJOR_VERSION >= 3
-  return nrnpy_hoc();
+  nrnpy_hoc();
 #else // ! PY_MAJOR_VERSION >= 3
   nrnpy_hoc();
 #endif // ! PY_MAJOR_VERSION >= 3
+  CALI_MARK_END("main");
 }
 
 #if !defined(CYGWIN)

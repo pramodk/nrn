@@ -17,6 +17,8 @@
 #include "nonvintblock.h"
 #include "nrndae_c.h"
 
+#include <caliper/cali.h>
+
 #if CVODE
 extern int cvode_active_;
 #endif
@@ -346,7 +348,7 @@ void nrn_rhs(NrnThread* _nt) {
 	double w;
 	int measure = 0;
 	NrnThreadMembList* tml;
-	
+
 	i1 = 0;
 	i2 = i1 + _nt->ncell;
 	i3 = _nt->end;
@@ -388,7 +390,13 @@ void nrn_rhs(NrnThread* _nt) {
 	for (tml = _nt->tml; tml; tml = tml->next) if (memb_func[tml->index].current) {
 		Pvmi s = memb_func[tml->index].current;
 		if (measure) { w = nrnmpi_wtime(); }
+
+        char marker[1024];
+        sprintf(marker, "cur-%s", memb_func[tml->index].sym->name);
+        CALI_MARK_BEGIN(marker);
 		(*s)(_nt, tml->ml, tml->index);
+        CALI_MARK_END(marker);
+
 		if (measure) { nrn_mech_wtime_[tml->index] += nrnmpi_wtime() - w; }
 		if (errno) {
 			if (nrn_errno_check(tml->index)) {
@@ -504,7 +512,13 @@ void nrn_lhs(NrnThread* _nt) {
 	/* note that CAP has no jacob */
 	for (tml = _nt->tml; tml; tml = tml->next) if (memb_func[tml->index].jacob) {
 		Pvmi s = memb_func[tml->index].jacob;
+
+        char marker[1024];
+        sprintf(marker, "cur-%s", memb_func[tml->index].sym->name);
+        CALI_MARK_BEGIN(marker);
 		(*s)(_nt, tml->ml, tml->index);
+        CALI_MARK_END(marker);
+
 		if (errno) {
 			if (nrn_errno_check(tml->index)) {
 hoc_warning("errno set during calculation of jacobian", (char*)0);

@@ -13,6 +13,8 @@
 #include "nrncvode.h"
 #include "spmatrix.h"
 
+#include <caliper/cali.h>
+
 /*
  after an fadvance from t-dt to t, v is defined at t
  states that depend on v are defined at t+dt/2
@@ -413,8 +415,14 @@ void* nrn_fixed_step_group_thread(NrnThread* nth) {
 }
 
 void* nrn_fixed_step_thread(NrnThread* nth) {
+    CALI_MARK_BEGIN("timestep");
+
 	double wt;
+
+    CALI_MARK_BEGIN("deliver_events");
 	deliver_net_events(nth);
+    CALI_MARK_END("deliver_events");
+
 	wt = nrnmpi_wtime();
 	nrn_random_play(nth);
 #if ELIMINATE_T_ROUNDOFF
@@ -424,10 +432,21 @@ void* nrn_fixed_step_thread(NrnThread* nth) {
 	nth->_t += .5 * nth->_dt;
 #endif
 	fixed_play_continuous(nth);
+    CALI_MARK_BEGIN("setup_tree_matrix");
 	setup_tree_matrix(nth);
+    CALI_MARK_END("setup_tree_matrix");
+
+    CALI_MARK_BEGIN("matrix-solver");
 	nrn_solve(nth);
+    CALI_MARK_END("matrix-solver");
+
+    CALI_MARK_BEGIN("second_order_cur");
 	second_order_cur(nth);
+    CALI_MARK_END("second_order_cur");
+
+    CALI_MARK_BEGIN("update");
 	update(nth);
+    CALI_MARK_END("update");
 	CTADD
 /*
   To simplify the logic,
@@ -436,6 +455,7 @@ void* nrn_fixed_step_thread(NrnThread* nth) {
 	if (!nrnthread_v_transfer_) {
 		nrn_fixed_step_lastpart(nth);
 	}
+    CALI_MARK_END("timestep");
 	return (void*)0;
 }
 
@@ -465,7 +485,10 @@ void* nrn_fixed_step_lastpart(NrnThread* nth) {
 #endif
 	fixed_record_continuous(nth);
 	CTADD
+
+    CALI_MARK_BEGIN("deliver_events");
 	nrn_deliver_events(nth) ; /* up to but not past texit */
+    CALI_MARK_END("deliver_events");
 	return (void*)0;
 }
 
@@ -688,14 +711,26 @@ void nonvint(NrnThread* _nt)
 	NrnThreadMembList* tml;
 #if 1 || PARANEURON
 	/* nrnmpi_v_transfer if needed was done earlier */
-	if (nrnthread_v_transfer_) {(*nrnthread_v_transfer_)(_nt);}
+	if (nrnthread_v_transfer_) {
+        CALI_MARK_BEGIN("gap-v-transfer");
+        (*nrnthread_v_transfer_)(_nt);
+        CALI_MARK_END("gap-v-transfer");
+    }
 #endif
 	if (_nt->id == 0 && nrn_mech_wtime_) { measure = 1; }
 	errno = 0;
+    CALI_MARK_BEGIN("state-update");
 	for (tml = _nt->tml; tml; tml = tml->next) if (memb_func[tml->index].state) {
 		Pvmi s = memb_func[tml->index].state;
 		if (measure) { w = nrnmpi_wtime(); }
+
+        char marker[1024];
+        sprintf(marker, "state-%s", memb_func[tml->index].sym->name);
+
+        CALI_MARK_BEGIN(marker);
 		(*s)(_nt, tml->ml, tml->index);
+        CALI_MARK_END(marker);
+
 		if (measure) { nrn_mech_wtime_[tml->index] += nrnmpi_wtime() - w; }
 		if (errno) {
 			if (nrn_errno_check(i)) {
@@ -703,6 +738,7 @@ hoc_warning("errno set during calculation of states", (char*)0);
 			}
 		}
   	  }
+    CALI_MARK_END("state-update");
 	long_difus_solve(0, _nt); /* if any longitudinal diffusion */
 	nrn_nonvint_block_fixed_step_solve(_nt->id);
 #endif
@@ -765,7 +801,6 @@ void nrn_finitialize(int setv, double v) {
 	extern int _ninits;
 	extern short* nrn_is_artificial_;
 	++_ninits;
-
 	nrn_fihexec(3); /* model structure changes can be made */
 	verify_structure();
 #if ELIMINATE_T_ROUNDOFF
@@ -921,10 +956,12 @@ void finitialize(void) {
 		v = *getarg(1);
 		setv = 1;
 	}
+    CALI_MARK_BEGIN("finitialize");
 	tstopunset;
 	nrn_finitialize(setv, v);
 	tstopunset;
 	hoc_retpushx(1.);
+    CALI_MARK_END("finitialize");
 }
 
 static FILE* batch_file;

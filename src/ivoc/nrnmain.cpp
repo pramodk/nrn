@@ -5,6 +5,8 @@
 #include <nrnmpi.h>
 #include <errno.h>
 
+#include <caliper/cali.h>
+
 extern "C" {
 	int nrn_isdouble(double*, double, double);
 	int ivocmain(int, char**, char**);
@@ -50,7 +52,10 @@ printf("argv[%d]=|%s|\n", i, argv[i]);
 	BGLCheckpointInit((char*)0);
 #endif
 	errno = 0;
-	return ivocmain(argc, argv, env);
+    CALI_MARK_BEGIN("main");
+	int status = ivocmain(argc, argv, env);
+    CALI_MARK_END("main");
+    return status;
 }
 
 #if USENCS
