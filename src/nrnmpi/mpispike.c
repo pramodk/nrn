@@ -19,6 +19,8 @@
 #include "mpispike.h"
 #include <mpi.h>
 
+#include <caliper/cali.h>
+
 extern void nrnbbs_context_wait();
 
 static int np;
@@ -91,8 +93,17 @@ static void make_spikebuf_type() {
 }
 #endif
 
+
 int nrnmpi_spike_exchange() {
 	int i, n, novfl, n1;
+
+    CALI_MARK_BEGIN("spike-exchange");
+
+    CALI_MARK_BEGIN("imbalance");
+    nrnmpi_barrier();
+    CALI_MARK_END("imbalance");
+
+    CALI_MARK_BEGIN("communication");
 	if (!displs) {
 		np = nrnmpi_numprocs;
 		displs = (int*)hoc_Emalloc(np*sizeof(int)); hoc_malchk();
@@ -149,6 +160,8 @@ int nrnmpi_spike_exchange() {
 	}
 	ovfl_ = novfl;
 #endif
+    CALI_MARK_END("communication");
+    CALI_MARK_END("spike-exchange");
 	return n;
 }
 
