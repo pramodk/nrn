@@ -109,8 +109,8 @@ PTHREAD_LIBS=@PTHREAD_LIBS@
 
 includes = $(windll) -I$(nsrc)/sundials -I$(nsrc)/sundials/shared -I$(nsrc)/nrncvode -I$(nsrc)/sparse13 -I$(nsrc)/gnu -I. -I$(nsrc)/ivoc -I$(nsrc)/nrnoc -I$(top_builddir)/src/oc -I$(nsrc)/oc $(IV_INCLUDES) $(BBS_INCLUDES)
 AM_CPPFLAGS = -DOOP=1 -DCABLE=1 -DUSECVODE=1 -DUSEMATRIX=1 -DUSEBBS=1 $(includes)
-AM_CFLAGS = @MINGW_CFLAG@ $(PTHREAD_CFLAGS)
-AM_CXXFLAGS = @MINGW_CFLAG@ $(PTHREAD_CFLAGS)
+AM_CFLAGS = @MINGW_CFLAG@ $(PTHREAD_CFLAGS)  $(COVERAGE_CFLAGS)
+AM_CXXFLAGS = @MINGW_CFLAG@ $(PTHREAD_CFLAGS)  $(COVERAGE_CXXFLAGS)
 
 if NRNMECH_DLL_STYLE
 libnrniv_la_LDFLAGS = -export-dynamic

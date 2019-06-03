@@ -48,7 +48,7 @@ EXTRA_DIST = $(MODFILES)
 PTHREAD_CC=@PTHREAD_CC@
 PTHREAD_CFLAGS=@PTHREAD_CFLAGS@
 PTHREAD_LIBS=@PTHREAD_LIBS@
-AM_CFLAGS = @MINGW_CFLAG@ $(PTHREAD_CFLAGS)
+AM_CFLAGS = @MINGW_CFLAG@ $(PTHREAD_CFLAGS) $(COVERAGE_CFLAGS)
 nsrc=$(top_srcdir)/src
 includes = -I$(top_builddir)/src/oc -I$(nsrc)/oc -I$(nsrc)/scopmath -I$(nsrc)/sparse13 -I$(nsrc)/nrnmpi
 AM_CPPFLAGS = -DCABLE=1 -DOOP=1 $(includes)

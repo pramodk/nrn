@@ -22,7 +22,7 @@ else
 	echo "libtoolize -c -f $ltarg"
 	libtoolize -c -f $ltarg
 fi
-    
+
 autoheader
 
 #autoheader constructs config.h.in. From that, construct nrnconf.h.in

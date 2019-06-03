@@ -25,6 +25,16 @@ fi
 
 PKG_PROG_PKG_CONFIG([0.22])
 
+
+###########################
+# gcov coverage reporting
+###########################
+m4_include([m4/gcov.m4])
+AC_TDD_GCOV
+AC_SUBST(COVERAGE_CFLAGS)
+AC_SUBST(COVERAGE_CXXFLAGS)
+AC_SUBST(COVERAGE_LDFLAGS)
+
 dnl The following line causes us to make a config.h instead of putting all
 dnl the defines into the makefile.
 AC_CONFIG_HEADERS(config.h)

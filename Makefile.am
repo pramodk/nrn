@@ -17,6 +17,8 @@ endif
 #
 pkgdata_SCRIPTS = libtool
 
+include Makefile.am.coverage
+
 ## Unfortunately nrnconf.h is architecture dependent so the standard
 ## installation of it does not allow multiarchitectures,
 ## i.e the following is wrong.
