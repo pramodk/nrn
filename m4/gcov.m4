@@ -78,15 +78,17 @@ AC_DEFUN([AC_TDD_GCOV],
     AC_MSG_ERROR([Could not find genhtml from the lcov package])
   fi
 
-  # Remove all optimization flags from CFLAGS
-  changequote({,})
-  CFLAGS=`echo "$CFLAGS" | sed -e 's/-O[0-9]*//g'`
-  changequote([,])
-
   # Add the special gcc flags
   COVERAGE_CFLAGS="--coverage"
   COVERAGE_CXXFLAGS="--coverage"
   COVERAGE_LDFLAGS="-lgcov"
+
+  # Remove all optimization flags and add coverage flags
+  changequote({,})
+  CFLAGS=`echo "$CFLAGS $COVERAGE_CFLAGS" | sed -e 's/-O[0-9]*//g'`
+  CXXFLAGS=`echo "$CXXFLAGS $COVERAGE_CXXFLAGS" | sed -e 's/-O[0-9]*//g'`
+  LDFLAGS="$LDFLAGS $COVERAGE_LDFLAGS"
+  changequote([,])
 
 fi
 ]) # AC_TDD_GCOV
