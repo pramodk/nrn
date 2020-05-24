@@ -3,8 +3,6 @@ version: 1.0.{build}
 branches:
   only:
     - nrnexe
-  except:
-    - gh-pages
 
 max_jobs: 1
 
@@ -13,11 +11,11 @@ image: Visual Studio 2019
 shallow_clone: true
 
 install:
+  - ps: Invoke-WebRequest -OutFile nrn.exe https://github.com/pramodk/nrn/releases/download/nightly-withmessagebox/nrn8.0setup-AMD64.exe
   - cmd: dir .
   - cmd: echo "Starting ==========>"
-  - cmd: .\nrn8.0setup-AMD64.exe
+  - cmd: .\nrn.exe
   - cmd: echo "Finished ==========>"
   - cmd: dir C:\nrn
-  - cmd: echo "End ==========>"
 
 build: off
