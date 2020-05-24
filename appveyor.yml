@@ -1,0 +1,23 @@
+version: 1.0.{build}
+
+branches:
+  only:
+    - nrnexe
+  except:
+    - gh-pages
+
+max_jobs: 1
+
+image: Visual Studio 2019
+
+shallow_clone: true
+
+install:
+  - cmd: dir .
+  - cmd: echo "Starting ==========>"
+  - cmd: .\nrn8.0setup-AMD64.exe
+  - cmd: echo "Finished ==========>"
+  - cmd: dir C:\nrn
+  - cmd: echo "End ==========>"
+
+build: off
